@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, Search, Bell, Settings, LogOut } from "lucide-react";
+import { Calendar, Search, Bell, Video, LogOut } from "lucide-react";
 
 export default function DoctorSidebar() {
     const pathname = usePathname();
@@ -11,7 +11,7 @@ export default function DoctorSidebar() {
         { icon: Calendar, label: "오늘 환자", href: "/medical/dashboard" },
         { icon: Search, label: "환자 검색", href: "/medical/dashboard/search" },
         { icon: Bell, label: "알림/리마인드", href: "/medical/dashboard/notifications" },
-        { icon: Settings, label: "설정", href: "/medical/dashboard/settings" },
+        { icon: Video, label: "영상분석", href: "/medical/dashboard/video-analysis" },
     ];
 
     return (
@@ -36,8 +36,8 @@ export default function DoctorSidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                                    ? "bg-teal-50 text-teal-700"
-                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                ? "bg-teal-50 text-teal-700"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                 }`}
                         >
                             <item.icon size={20} className={isActive ? "text-teal-600" : "text-gray-400"} />
