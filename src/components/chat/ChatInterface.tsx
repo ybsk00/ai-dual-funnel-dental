@@ -13,6 +13,7 @@ type Message = {
 
 type ChatInterfaceProps = {
     isEmbedded?: boolean;
+    isLoggedIn?: boolean;
 };
 
 export default function ChatInterface(props: ChatInterfaceProps) {
@@ -45,6 +46,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
     }, [messages]);
 
     const handleImageClick = () => {
+        if (props.isLoggedIn) return; // Skip if logged in
         setLoginModalContent({
             title: "이미지 분석 기능",
             desc: "이미지 분석을 통한 건강 상담은<br />로그인 후 이용 가능합니다."
@@ -63,8 +65,8 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         setTurnCount(newTurnCount);
         setMessages(prev => [...prev, { role: "user", content: userMessage }]);
 
-        // Check for login modal trigger (3, 5, 7, 10 turns)
-        if ([3, 5, 7, 10].includes(newTurnCount)) {
+        // Check for login modal trigger (3, 5, 7, 10 turns) - Only if NOT logged in
+        if (!props.isLoggedIn && [3, 5, 7, 10].includes(newTurnCount)) {
             setLoginModalContent({
                 title: "상세한 상담이 필요하신가요?",
                 desc: "더 정확한 건강 분석과 맞춤형 조언을 위해<br />로그인이 필요합니다."
@@ -90,8 +92,8 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             const data = await response.json();
             setMessages(prev => [...prev, { role: "ai", content: data.content }]);
 
-            // Check for forced login trigger from AI response
-            if (data.content.includes("로그인이 필요합니다")) {
+            // Check for forced login trigger from AI response - Only if NOT logged in
+            if (!props.isLoggedIn && data.content.includes("로그인이 필요합니다")) {
                 setLoginModalContent({
                     title: "상세한 상담이 필요하신가요?",
                     desc: "더 정확한 건강 분석과 맞춤형 조언을 위해<br />로그인이 필요합니다."
@@ -148,7 +150,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
     ];
 
     return (
-        <div className="min-h-screen bg-traditional-bg font-sans flex flex-col">
+        <div className={`${props.isEmbedded ? "h-full" : "min-h-screen"} bg-traditional-bg font-sans flex flex-col`}>
             {/* Header - Hidden if embedded */}
             {!props.isEmbedded && (
                 <header className="bg-traditional-bg px-6 py-4 flex items-center justify-between sticky top-0 z-20">
@@ -166,7 +168,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 </header>
             )}
 
-            <main className="flex-1 max-w-4xl mx-auto w-full px-4 pb-20">
+            <main className={`flex-1 w-full mx-auto ${props.isEmbedded ? "flex flex-col overflow-hidden p-0" : "max-w-4xl px-4 pb-20"}`}>
                 {/* Hero Banner - Hidden if embedded */}
                 {!props.isEmbedded && (
                     <div className="relative rounded-3xl overflow-hidden mb-6 h-[300px] md:h-[450px] shadow-lg group">
@@ -206,7 +208,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 )}
 
                 {/* Chat Area */}
-                <div className="bg-indigo-50/50 border border-indigo-100 rounded-3xl p-6 min-h-[400px] space-y-6 shadow-inner">
+                <div className={`bg-indigo-50/50 border border-indigo-100 rounded-3xl p-6 space-y-6 shadow-inner ${props.isEmbedded ? "flex-1 overflow-y-auto rounded-none border-x-0 border-t-0" : "min-h-[400px]"}`}>
                     {messages.map((msg, idx) => (
                         <div
                             key={idx}
@@ -252,8 +254,8 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             </main>
 
             {/* Input Area */}
-            <div className="fixed bottom-0 left-0 right-0 bg-traditional-bg/80 backdrop-blur-md border-t border-traditional-muted/50 p-4">
-                <div className="max-w-3xl mx-auto relative">
+            <div className={`${props.isEmbedded ? "relative bg-white border-t border-gray-100" : "fixed bottom-0 left-0 right-0 bg-traditional-bg/80 backdrop-blur-md border-t border-traditional-muted/50"} p-4`}>
+                <div className={`${props.isEmbedded ? "w-full" : "max-w-3xl mx-auto"} relative`}>
                     <form onSubmit={handleSubmit} className="relative bg-white rounded-full shadow-lg border border-traditional-muted flex items-center p-2 pl-6">
                         <input
                             type="text"
