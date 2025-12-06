@@ -13,11 +13,7 @@ export default function LandingPage() {
           <span className="text-lg font-bold text-traditional-text">100년 한의학 AI 헬스케어</span>
         </div>
         <div className="hidden md:flex items-center gap-8 text-sm font-medium text-traditional-subtext">
-          <Link href="#" className="hover:text-traditional-primary transition-colors">소개</Link>
-          <Link href="#" className="hover:text-traditional-primary transition-colors">내 몸 체크</Link>
-          <Link href="#" className="hover:text-traditional-primary transition-colors">건강정보</Link>
-          <Link href="#" className="hover:text-traditional-primary transition-colors">시설망</Link>
-          <Link href="#" className="hover:text-traditional-primary transition-colors">메디컬 상담</Link>
+          {/* Navigation links removed as per request */}
         </div>
         <Link
           href="/login"
@@ -29,7 +25,19 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <header className="relative px-6 py-20 md:py-32 text-center overflow-hidden">
-        {/* Background Image Placeholder - In real app, use next/image with the tea image */}
+        {/* Hero Video Background */}
+        <div className="absolute inset-0 z-0 bg-[#C8B6A6]">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-full object-cover opacity-50"
+          >
+            <source src="/grok-video-d2ce9230-c0a9-4bed-9097-3443b0c49cfd.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
         <div className="absolute inset-0 bg-gradient-to-b from-traditional-muted/30 to-traditional-bg z-0"></div>
         <div className="absolute inset-0 opacity-10 bg-[url('/texture-hanji.png')] pointer-events-none mix-blend-multiply"></div>
 
@@ -51,20 +59,6 @@ export default function LandingPage() {
               AI 상담 시작하기
             </Link>
           </div>
-        </div>
-
-        {/* Hero Video Background */}
-        <div className="absolute inset-0 -z-10 bg-[#C8B6A6]">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-full object-cover opacity-50"
-          >
-            <source src="/grok-video-d2ce9230-c0a9-4bed-9097-3443b0c49cfd.mp4" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
         </div>
       </header>
 
