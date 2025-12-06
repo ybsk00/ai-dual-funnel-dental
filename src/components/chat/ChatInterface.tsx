@@ -5,6 +5,7 @@ import { Send, User, Bot, ArrowLeft, Paperclip, ArrowUp, Sun, Moon, Activity, He
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import ConditionReport from "@/components/healthcare/ConditionReport";
+import ReservationModal from "@/components/medical/ReservationModal";
 
 type Message = {
     role: "user" | "ai";
@@ -67,13 +68,24 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         setTurnCount(newTurnCount);
         setMessages(prev => [...prev, { role: "user", content: userMessage }]);
 
-        // Check for login modal trigger (3, 5, 7, 10 turns) - Only if NOT logged in
-        if (!props.isLoggedIn && [3, 5, 7, 10].includes(newTurnCount)) {
+        // Check for login modal trigger (3, 7 turns) - Only if NOT logged in
+        if (!props.isLoggedIn && [3, 7].includes(newTurnCount)) {
             setLoginModalContent({
                 title: "상세한 상담이 필요하신가요?",
                 desc: "더 정확한 건강 분석과 맞춤형 조언을 위해<br />로그인이 필요합니다."
             });
             setShowLoginModal(true);
+        }
+
+        // Force Reservation Modal at Turn 5 and 10 (Client-side backup)
+        if (props.isLoggedIn && [5, 10].includes(newTurnCount)) {
+            // We'll let the AI response trigger it naturally via [RESERVATION_TRIGGER] if possible,
+            // but we can also set a flag or just rely on the AI.
+            // The user request says "5턴 그리고 10턴에서 활성화시켜주세요".
+            // Let's rely on AI for the message content, but if we want to force it without AI tag:
+            // setShowReservationModal(true); 
+            // But showing it immediately before AI replies might be weird.
+            // Let's wait for AI response. The AI prompt will be updated to include the trigger at turn 5 and 10.
         }
 
         setIsLoading(true);
@@ -341,39 +353,11 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             )}
 
             {/* Reservation Modal */}
-            {
-                showReservationModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center transform transition-all scale-100">
-                            <div className="w-12 h-12 bg-traditional-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Calendar className="w-6 h-6 text-traditional-accent" />
-                            </div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">
-                                진료 예약 안내
-                            </h3>
-                            <p className="text-gray-600 text-sm mb-6 leading-relaxed">
-                                죽전한의원의 전문적인 진료를 위해<br />
-                                예약 페이지로 이동하시겠습니까?
-                            </p>
-                            <div className="flex flex-col gap-3">
-                                <Link
-                                    href="/medical/care" // Assuming this is the reservation or dashboard page
-                                    className="w-full py-3 bg-traditional-accent text-white rounded-xl font-medium hover:bg-opacity-90 transition-colors"
-                                    onClick={() => setShowReservationModal(false)}
-                                >
-                                    예, 예약하겠습니다
-                                </Link>
-                                <button
-                                    onClick={() => setShowReservationModal(false)}
-                                    className="w-full py-3 bg-gray-100 text-gray-600 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-                                >
-                                    아니오, 괜찮습니다
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+            <ReservationModal
+                isOpen={showReservationModal}
+                onClose={() => setShowReservationModal(false)}
+                initialTab="book"
+            />
         </div >
     );
 }
