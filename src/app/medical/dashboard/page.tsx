@@ -10,62 +10,73 @@ export default function DoctorDashboard() {
     const [activeFilter, setActiveFilter] = useState("전체");
     const supabase = createClient();
 
-    // Define Patient type
-    type Patient = {
-        id: number;
-        time: string;
-        name: string;
-        type: string;
-        complaint: string;
-        keywords: string[];
-        status: "completed" | "pending";
+    // Define Visit type (joined with Patient)
+    type Visit = {
+        id: string;
+        visit_date: string;
+        visit_type: string;
+        status: "scheduled" | "in_progress" | "completed" | "cancelled";
+        chief_complaint: string;
+        patient: {
+            name: string;
+            phone: string;
+            gender: string;
+            birth_date: string;
+        };
     };
 
-    const [patients, setPatients] = useState<Patient[]>([]);
-    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+    const [visits, setVisits] = useState<Visit[]>([]);
+    const [selectedVisit, setSelectedVisit] = useState<Visit | null>(null);
     const [showChatModal, setShowChatModal] = useState(false);
     const [showReservationModal, setShowReservationModal] = useState(false);
 
-    const filters = ["전체", "대기", "완료"];
+    const filters = ["전체", "대기", "완료", "취소"];
 
     useEffect(() => {
-        fetchPatients();
+        fetchVisits();
     }, []);
 
-    const fetchPatients = async () => {
+    const fetchVisits = async () => {
         const { data, error } = await supabase
-            .from('patients')
-            .select('*')
-            .order('time', { ascending: true });
+            .from('visits')
+            .select(`
+                *,
+                patient:patients (
+                    name,
+                    phone,
+                    gender,
+                    birth_date
+                )
+            `)
+            .order('visit_date', { ascending: true });
 
         if (error) {
-            console.error('Error fetching patients:', error);
+            console.error('Error fetching visits:', error);
         } else {
-            setPatients(data || []);
+            setVisits(data || []);
         }
     };
 
-    const handleStatusClick = async (patient: Patient) => {
-        if (patient.status === "completed") {
-            setSelectedPatient(patient);
+    const handleStatusClick = async (visit: Visit) => {
+        if (visit.status === "completed") {
+            setSelectedVisit(visit);
             setShowReservationModal(true);
         } else {
-            // Toggle status logic (optional, or just for demo)
-            // For now, let's just mark as completed if pending
-            const newStatus = "completed";
+            // Toggle status logic
+            const newStatus = visit.status === 'scheduled' ? 'completed' : 'scheduled';
             const { error } = await supabase
-                .from('patients')
+                .from('visits')
                 .update({ status: newStatus })
-                .eq('id', patient.id);
+                .eq('id', visit.id);
 
             if (!error) {
-                fetchPatients(); // Refresh data
+                fetchVisits(); // Refresh data
             }
         }
     };
 
-    const handleComplaintClick = (patient: Patient) => {
-        setSelectedPatient(patient);
+    const handleComplaintClick = (visit: Visit) => {
+        setSelectedVisit(visit);
         setShowChatModal(true);
     };
 
@@ -124,15 +135,14 @@ export default function DoctorDashboard() {
                         <tr>
                             <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">시간</th>
                             <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">환자 정보</th>
-                            <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">주호소 (AI 요약)</th>
-                            <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">분석 키워드</th>
+                            <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">주호소</th>
                             <th className="px-8 py-5 text-sm font-bold text-traditional-text/80 uppercase tracking-wider">상태</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-traditional-muted/30">
-                        {patients.length === 0 ? (
+                        {visits.length === 0 ? (
                             <tr>
-                                <td colSpan={5} className="px-8 py-16 text-center text-traditional-subtext">
+                                <td colSpan={4} className="px-8 py-16 text-center text-traditional-subtext">
                                     <div className="flex flex-col items-center gap-3">
                                         <Calendar className="w-10 h-10 text-traditional-muted" />
                                         <p>예약된 환자가 없습니다.</p>
@@ -140,9 +150,11 @@ export default function DoctorDashboard() {
                                 </td>
                             </tr>
                         ) : (
-                            patients.map((patient) => (
-                                <tr key={patient.id} className="hover:bg-white/50 transition-colors group">
-                                    <td className="px-8 py-5 text-traditional-text font-medium font-mono text-base">{patient.time}</td>
+                            visits.map((visit) => (
+                                <tr key={visit.id} className="hover:bg-white/50 transition-colors group">
+                                    <td className="px-8 py-5 text-traditional-text font-medium font-mono text-base">
+                                        {new Date(visit.visit_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </td>
                                     <td className="px-8 py-5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-full bg-traditional-bg border border-traditional-muted flex items-center justify-center text-traditional-subtext">
@@ -150,43 +162,35 @@ export default function DoctorDashboard() {
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-bold text-traditional-text text-base">{patient.name}</span>
-                                                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${patient.type === '초진' ? 'bg-green-100 text-green-700' :
-                                                        patient.type === '온라인' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'
-                                                        }`}>
-                                                        {patient.type}
+                                                    <span className="font-bold text-traditional-text text-base">{visit.patient.name}</span>
+                                                    <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-700">
+                                                        {visit.visit_type}
                                                     </span>
+                                                </div>
+                                                <div className="text-xs text-traditional-subtext mt-0.5">
+                                                    {visit.patient.phone}
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-5">
                                         <button
-                                            onClick={() => handleComplaintClick(patient)}
+                                            onClick={() => { setSelectedVisit(visit); setShowChatModal(true); }}
                                             className="text-traditional-subtext hover:text-traditional-primary hover:underline text-left flex items-center gap-2 group-hover:translate-x-1 transition-all"
                                         >
                                             <MessageSquare size={16} className="text-traditional-muted group-hover:text-traditional-primary" />
-                                            <span className="line-clamp-1">{patient.complaint}</span>
+                                            <span className="line-clamp-1">{visit.chief_complaint}</span>
                                         </button>
                                     </td>
                                     <td className="px-8 py-5">
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {patient.keywords.map((keyword, idx) => (
-                                                <span key={idx} className="px-2.5 py-1 bg-traditional-bg border border-traditional-muted/50 rounded-md text-xs text-traditional-subtext font-medium">
-                                                    #{keyword}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-5">
                                         <button
-                                            onClick={() => handleStatusClick(patient)}
-                                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${patient.status === 'completed'
+                                            onClick={() => handleStatusClick(visit)}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all shadow-sm ${visit.status === 'completed'
                                                 ? 'bg-traditional-primary/10 text-traditional-primary border border-traditional-primary/20 hover:bg-traditional-primary/20'
                                                 : 'bg-white border border-traditional-muted text-traditional-subtext hover:bg-traditional-bg'
                                                 }`}
                                         >
-                                            {patient.status === 'completed' ? (
+                                            {visit.status === 'completed' ? (
                                                 <>
                                                     <CheckCircle2 size={16} />
                                                     진료 완료
@@ -207,7 +211,7 @@ export default function DoctorDashboard() {
             </div>
 
             {/* Chat History Modal */}
-            {showChatModal && selectedPatient && (
+            {showChatModal && selectedVisit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden border border-white/20 flex flex-col max-h-[80vh]">
                         <div className="flex items-center justify-between px-8 py-5 border-b border-traditional-muted/30 bg-traditional-bg/50">
@@ -216,8 +220,8 @@ export default function DoctorDashboard() {
                                     <MessageSquare className="text-traditional-primary" size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-bold text-traditional-text">AI 사전 문진 내역</h3>
-                                    <p className="text-xs text-traditional-subtext">환자: {selectedPatient.name}</p>
+                                    <h3 className="text-lg font-bold text-traditional-text">주호소 상세</h3>
+                                    <p className="text-xs text-traditional-subtext">환자: {selectedVisit.patient.name}</p>
                                 </div>
                             </div>
                             <button
@@ -228,30 +232,8 @@ export default function DoctorDashboard() {
                             </button>
                         </div>
                         <div className="p-8 space-y-6 overflow-y-auto bg-traditional-bg/30 flex-1">
-                            {/* Mock Chat Content */}
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-full bg-traditional-primary flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white">
-                                    <span className="text-xs font-bold text-white">AI</span>
-                                </div>
-                                <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-traditional-muted/50 text-traditional-text text-sm leading-relaxed max-w-[80%]">
-                                    안녕하세요, {selectedPatient.name}님. 오늘 어떤 불편함 때문에 내원하셨나요?
-                                </div>
-                            </div>
-                            <div className="flex gap-4 flex-row-reverse">
-                                <div className="w-10 h-10 rounded-full bg-traditional-accent flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white">
-                                    <span className="text-xs font-bold text-white">나</span>
-                                </div>
-                                <div className="bg-traditional-accent/10 p-4 rounded-2xl rounded-tr-none shadow-sm border border-traditional-accent/20 text-traditional-text text-sm leading-relaxed max-w-[80%]">
-                                    {selectedPatient.complaint}
-                                </div>
-                            </div>
-                            <div className="flex gap-4">
-                                <div className="w-10 h-10 rounded-full bg-traditional-primary flex items-center justify-center flex-shrink-0 shadow-md border-2 border-white">
-                                    <span className="text-xs font-bold text-white">AI</span>
-                                </div>
-                                <div className="bg-white p-4 rounded-2xl rounded-tl-none shadow-sm border border-traditional-muted/50 text-traditional-text text-sm leading-relaxed max-w-[80%]">
-                                    증상이 언제부터 시작되었나요? 통증의 정도는 어떠신가요?
-                                </div>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-traditional-muted/50 text-traditional-text text-base leading-relaxed">
+                                {selectedVisit.chief_complaint}
                             </div>
                         </div>
                         <div className="p-5 border-t border-traditional-muted/30 bg-white flex justify-end">
@@ -267,11 +249,11 @@ export default function DoctorDashboard() {
             )}
 
             {/* Reservation Confirmation Modal */}
-            {showReservationModal && selectedPatient && (
+            {showReservationModal && selectedVisit && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-white/20">
                         <div className="flex items-center justify-between px-6 py-4 border-b border-traditional-muted/30">
-                            <h3 className="text-lg font-bold text-traditional-text">예약 상세 정보</h3>
+                            <h3 className="text-lg font-bold text-traditional-text">진료 완료 처리</h3>
                             <button
                                 onClick={() => setShowReservationModal(false)}
                                 className="text-traditional-subtext hover:text-traditional-text transition-colors"
@@ -285,22 +267,18 @@ export default function DoctorDashboard() {
                             </div>
 
                             <div className="space-y-1">
-                                <h4 className="text-xl font-bold text-traditional-text">{selectedPatient.name}님</h4>
-                                <p className="text-traditional-subtext text-sm">진료 예약이 확정되었습니다.</p>
+                                <h4 className="text-xl font-bold text-traditional-text">{selectedVisit.patient.name}님</h4>
+                                <p className="text-traditional-subtext text-sm">진료가 완료되었습니다.</p>
                             </div>
 
                             <div className="bg-traditional-bg rounded-2xl p-5 space-y-4 text-left border border-traditional-muted/50">
                                 <div className="flex justify-between items-center">
                                     <span className="text-traditional-subtext text-sm">날짜</span>
-                                    <span className="font-bold text-traditional-text">2025년 12월 08일 (금)</span>
+                                    <span className="font-bold text-traditional-text">{new Date(selectedVisit.visit_date).toLocaleDateString()}</span>
                                 </div>
                                 <div className="flex justify-between items-center border-t border-traditional-muted/20 pt-3">
                                     <span className="text-traditional-subtext text-sm">시간</span>
-                                    <span className="font-bold text-traditional-primary text-lg">{selectedPatient.time}</span>
-                                </div>
-                                <div className="flex justify-between items-center border-t border-traditional-muted/20 pt-3">
-                                    <span className="text-traditional-subtext text-sm">진료 유형</span>
-                                    <span className="font-medium text-traditional-text bg-white px-2 py-0.5 rounded border border-traditional-muted/30 text-sm">{selectedPatient.type}</span>
+                                    <span className="font-bold text-traditional-primary text-lg">{new Date(selectedVisit.visit_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                             </div>
                         </div>
