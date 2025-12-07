@@ -3,13 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Bot, ArrowLeft, Paperclip, ArrowUp, Sun, Moon, Activity, Heart, Baby, Calendar } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import ConditionReport from "@/components/healthcare/ConditionReport";
 import ReservationModal from "@/components/medical/ReservationModal";
+import SmileResultCard from "@/components/healthcare/results/SmileResultCard";
+import MbtiResultCard from "@/components/healthcare/results/MbtiResultCard";
+import TeethAgeCard from "@/components/healthcare/results/TeethAgeCard";
+import StainCard from "@/components/healthcare/results/StainCard";
+import KidsHeroCard from "@/components/healthcare/results/KidsHeroCard";
 
 type Message = {
     role: "user" | "ai";
     content: string;
+    result?: any; // For structured results
 };
 
 type ChatInterfaceProps = {
@@ -17,9 +23,40 @@ type ChatInterfaceProps = {
     isLoggedIn?: boolean;
 };
 
+// Flow Definitions
+const FLOWS: any = {
+    smile_test: {
+        title: "AI 스마일 인상체크",
+        initialMessage: "당신의 미소 사진을 올려주시면, AI가 인상을 분석해 드려요! (재미용)",
+        steps: ["image_upload"]
+    },
+    breath_mbti: {
+        title: "입냄새 MBTI",
+        initialMessage: "몇 가지 질문으로 나의 입냄새 유형을 알아볼까요?",
+        steps: ["q1", "q2", "q3", "q4", "q5"] // Simplified for MVP
+    },
+    teeth_age: {
+        title: "치아 나이 테스트",
+        initialMessage: "실제 나이와 치아 나이는 다를 수 있어요. 테스트를 시작할까요?",
+        steps: ["age_input", "q1", "q2", "q3"]
+    },
+    stain_risk: {
+        title: "커피 착색 카드",
+        initialMessage: "평소 커피 습관을 알려주시면 착색 위험도를 알려드려요.",
+        steps: ["q1", "q2"]
+    },
+    kids_mission: {
+        title: "양치 히어로",
+        initialMessage: "안녕! 나는 치아를 지키는 닥터 래빗이야. 오늘 양치 미션을 완료했니?",
+        steps: ["mission_check"]
+    }
+};
+
 export default function ChatInterface(props: ChatInterfaceProps) {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const topic = searchParams.get("topic") || "resilience";
+    const isDentalFlow = Object.keys(FLOWS).includes(topic);
 
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState("");
@@ -31,12 +68,26 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         desc: "더 정확한 건강 분석과 맞춤형 조언을 위해<br />로그인이 필요합니다."
     });
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Dental Flow State
+    const [flowState, setFlowState] = useState({
+        stepIndex: 0,
+        answers: {} as any,
+        image: null as string | null
+    });
 
     // Welcome message based on topic
     useEffect(() => {
         let welcomeMsg = "안녕하세요, 100년 한의학 AI 헬스케어입니다. 궁금한 점을 체크해 보세요.";
+
+        if (isDentalFlow) {
+            welcomeMsg = FLOWS[topic].initialMessage;
+        }
+
         setMessages([{ role: "ai", content: welcomeMsg }]);
-    }, [topic]);
+        setFlowState({ stepIndex: 0, answers: {}, image: null });
+    }, [topic, isDentalFlow]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,7 +98,13 @@ export default function ChatInterface(props: ChatInterfaceProps) {
     }, [messages]);
 
     const handleImageClick = () => {
-        if (props.isLoggedIn) return; // Skip if logged in
+        // Allow image upload if it's a dental flow that requires it (smile_test, stain_risk)
+        // OR if the user is logged in (for general medical chat)
+        if (["smile_test", "stain_risk"].includes(topic) || props.isLoggedIn) {
+            fileInputRef.current?.click();
+            return;
+        }
+
         setLoginModalContent({
             title: "이미지 분석 기능",
             desc: "이미지 분석을 통한 건강 상담은<br />로그인 후 이용 가능합니다."
@@ -55,37 +112,64 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         setShowLoginModal(true);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Simple check for image type
+        if (!file.type.startsWith("image/")) {
+            alert("이미지 파일만 업로드 가능합니다.");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+
+            // If dental flow, store in flowState
+            if (isDentalFlow) {
+                setFlowState(prev => ({ ...prev, image: base64String }));
+                setMessages(prev => [...prev, { role: "user", content: "📷 [사진이 업로드되었습니다]" }]);
+
+                // For smile_test, auto-trigger
+                if (topic === "smile_test") {
+                    handleDentalFlow("📷 [사진 분석 요청]");
+                }
+            } else {
+                // General chat image handling placeholder
+                setMessages(prev => [...prev, { role: "user", content: "📷 [사진 전송됨]" }]);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
     const [showReservationModal, setShowReservationModal] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || isLoading) return;
+        if (!input.trim() && !flowState.image) return;
+        if (isLoading) return;
 
-        const userMessage = input.trim();
+        const userMessage = input.trim() || (flowState.image ? "📷 [사진 분석 요청]" : "");
         setInput("");
 
         const newTurnCount = turnCount + 1;
         setTurnCount(newTurnCount);
         setMessages(prev => [...prev, { role: "user", content: userMessage }]);
 
-        // Check for login modal trigger (3, 7 turns) - Only if NOT logged in
+        // Dental Flow Logic
+        if (isDentalFlow) {
+            await handleDentalFlow(userMessage);
+            return;
+        }
+
+        // Existing Logic (Resilience, etc.)
         if (!props.isLoggedIn && [3, 7].includes(newTurnCount)) {
             setLoginModalContent({
                 title: "상세한 상담이 필요하신가요?",
                 desc: "더 정확한 건강 분석과 맞춤형 조언을 위해<br />로그인이 필요합니다."
             });
             setShowLoginModal(true);
-        }
-
-        // Force Reservation Modal at Turn 5 and 10 (Client-side backup)
-        if (props.isLoggedIn && [5, 10].includes(newTurnCount)) {
-            // We'll let the AI response trigger it naturally via [RESERVATION_TRIGGER] if possible,
-            // but we can also set a flag or just rely on the AI.
-            // The user request says "5턴 그리고 10턴에서 활성화시켜주세요".
-            // Let's rely on AI for the message content, but if we want to force it without AI tag:
-            // setShowReservationModal(true); 
-            // But showing it immediately before AI replies might be weird.
-            // Let's wait for AI response. The AI prompt will be updated to include the trigger at turn 5 and 10.
         }
 
         setIsLoading(true);
@@ -106,7 +190,6 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             const data = await response.json();
             let aiContent = data.content;
 
-            // Check for reservation trigger
             if (aiContent.includes("[RESERVATION_TRIGGER]")) {
                 aiContent = aiContent.replace("[RESERVATION_TRIGGER]", "").trim();
                 setShowReservationModal(true);
@@ -114,7 +197,6 @@ export default function ChatInterface(props: ChatInterfaceProps) {
 
             setMessages(prev => [...prev, { role: "ai", content: aiContent }]);
 
-            // Check for forced login trigger from AI response - Only if NOT logged in
             if (!props.isLoggedIn && data.content.includes("로그인이 필요합니다")) {
                 setLoginModalContent({
                     title: "상세한 상담이 필요하신가요?",
@@ -130,7 +212,65 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         }
     };
 
-    // Report Logic (Simplified for design update, keeping functionality)
+    const handleDentalFlow = async (userMessage: string) => {
+        setIsLoading(true);
+
+        const currentFlow = FLOWS[topic];
+        const nextStepIndex = flowState.stepIndex + 1;
+        const updatedAnswers = { ...flowState.answers, [`step_${flowState.stepIndex}`]: userMessage };
+
+        setFlowState(prev => ({
+            ...prev,
+            stepIndex: nextStepIndex,
+            answers: updatedAnswers
+        }));
+
+        // Check if flow is complete based on defined steps
+        const totalSteps = FLOWS[topic]?.steps.length || 3;
+        const isComplete = (topic === 'smile_test' && (flowState.image || userMessage.includes("사진"))) ||
+            (nextStepIndex >= totalSteps);
+
+        if (isComplete) {
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        flow_type: topic,
+                        answers: updatedAnswers,
+                        image: flowState.image
+                    }),
+                });
+
+                if (!response.ok) throw new Error("Failed to analyze");
+
+                const data = await response.json();
+                setMessages(prev => [...prev, {
+                    role: "ai",
+                    content: data.content,
+                    result: data.result
+                }]);
+
+            } catch (error) {
+                console.error("Error:", error);
+                setMessages(prev => [...prev, { role: "ai", content: "분석 중 오류가 발생했습니다." }]);
+            }
+        } else {
+            // Next Question (Mock)
+            setTimeout(() => {
+                let nextMsg = "다음 질문입니다.";
+                if (topic === 'breath_mbti') nextMsg = "평소 양치질은 하루에 몇 번 하시나요?";
+                if (topic === 'teeth_age') nextMsg = "이가 시린 증상이 있나요?";
+                if (topic === 'stain_risk') nextMsg = "하루에 커피를 몇 잔 드시나요?";
+
+                setMessages(prev => [...prev, { role: "ai", content: nextMsg }]);
+            }, 500);
+        }
+
+        setIsLoading(false);
+    };
+
+    // Report Logic
     const [showReport, setShowReport] = useState(false);
     const [reportData, setReportData] = useState<any>(null);
 
@@ -231,44 +371,56 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 {/* Chat Area */}
                 <div className={`bg-white/60 backdrop-blur-xl border border-white/50 rounded-3xl p-6 space-y-8 shadow-xl ${props.isEmbedded ? "flex-1 overflow-y-auto rounded-none border-x-0 border-t-0 bg-transparent shadow-none" : "min-h-[500px]"}`}>
                     {messages.map((msg, idx) => (
-                        <div
-                            key={idx}
-                            className={`flex items-start gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
-                        >
-                            {/* Avatar */}
+                        <div key={idx}>
                             <div
-                                className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden border-2 ${msg.role === "ai"
-                                    ? "border-traditional-primary bg-traditional-bg"
-                                    : "border-traditional-accent bg-traditional-bg"
-                                    }`}
+                                className={`flex items-start gap-4 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
                             >
-                                {msg.role === "ai" ? (
-                                    <img
-                                        src="/images/character-doctor.jpg"
-                                        alt="Doctor"
-                                        className="w-full h-full object-cover"
-                                    />
-                                ) : (
-                                    <div className="w-full h-full bg-traditional-accent flex items-center justify-center text-white">
-                                        <User size={20} />
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Bubble */}
-                            <div className="flex flex-col gap-1 max-w-[80%]">
-                                <span className={`text-xs font-medium ${msg.role === "user" ? "text-right text-traditional-subtext" : "text-left text-traditional-primary"}`}>
-                                    {msg.role === "ai" ? "AI 닥터" : "나"}
-                                </span>
+                                {/* Avatar */}
                                 <div
-                                    className={`px-6 py-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                        ? "bg-white text-traditional-text border border-traditional-muted rounded-tl-none"
-                                        : "bg-traditional-primary text-white rounded-tr-none shadow-md"
+                                    className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden border-2 ${msg.role === "ai"
+                                        ? "border-traditional-primary bg-traditional-bg"
+                                        : "border-traditional-accent bg-traditional-bg"
                                         }`}
                                 >
-                                    {msg.content}
+                                    {msg.role === "ai" ? (
+                                        <img
+                                            src="/images/character-doctor.jpg"
+                                            alt="Doctor"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-traditional-accent flex items-center justify-center text-white">
+                                            <User size={20} />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Bubble */}
+                                <div className="flex flex-col gap-1 max-w-[80%]">
+                                    <span className={`text-xs font-medium ${msg.role === "user" ? "text-right text-traditional-subtext" : "text-left text-traditional-primary"}`}>
+                                        {msg.role === "ai" ? "AI 닥터" : "나"}
+                                    </span>
+                                    <div
+                                        className={`px-6 py-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
+                                            ? "bg-white text-traditional-text border border-traditional-muted rounded-tl-none"
+                                            : "bg-traditional-primary text-white rounded-tr-none shadow-md"
+                                            }`}
+                                    >
+                                        {msg.content}
+                                    </div>
                                 </div>
                             </div>
+
+                            {/* Result Cards */}
+                            {msg.result && (
+                                <div className="mt-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                                    {topic === 'smile_test' && <SmileResultCard result={msg.result} isLoggedIn={props.isLoggedIn || false} />}
+                                    {topic === 'breath_mbti' && <MbtiResultCard result={msg.result} isLoggedIn={props.isLoggedIn || false} />}
+                                    {topic === 'teeth_age' && <TeethAgeCard result={msg.result} isLoggedIn={props.isLoggedIn || false} />}
+                                    {topic === 'stain_risk' && <StainCard result={msg.result} isLoggedIn={props.isLoggedIn || false} />}
+                                    {topic === 'kids_mission' && <KidsHeroCard result={msg.result} isLoggedIn={props.isLoggedIn || false} />}
+                                </div>
+                            )}
                         </div>
                     ))}
                     {isLoading && (
@@ -304,6 +456,13 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                             placeholder="증상이나 궁금한 점을 입력해주세요..."
                             className="flex-1 bg-transparent border-none focus:ring-0 text-traditional-text placeholder:text-traditional-subtext/50 text-base"
                         />
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                        />
                         <button
                             type="button"
                             onClick={handleImageClick}
@@ -313,7 +472,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                         </button>
                         <button
                             type="submit"
-                            disabled={isLoading || !input.trim()}
+                            disabled={isLoading || (!input.trim() && !flowState.image)}
                             className="p-3 bg-traditional-primary text-white rounded-full hover:bg-traditional-accent transition-all disabled:opacity-50 disabled:hover:bg-traditional-primary ml-2 shadow-md hover:shadow-lg hover:-translate-y-0.5"
                         >
                             <ArrowUp size={20} />

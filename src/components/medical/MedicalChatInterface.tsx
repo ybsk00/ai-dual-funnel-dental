@@ -20,10 +20,36 @@ export default function MedicalChatInterface() {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
-        // Initial Medical Greeting
+        // Initial Medical Greeting - Customized based on source
+        const params = new URLSearchParams(window.location.search);
+        const source = params.get("source");
+        const context = params.get("context");
+
+        let initialContent = "안녕하세요. 죽전한의원 메디컬 AI입니다. \n더 정확한 진료를 위해 현재 불편하신 증상을 구체적으로 말씀해 주세요. (예: 통증 부위, 시작된 시기, 악화 요인 등)";
+
+        if (source) {
+            switch (source) {
+                case "smile_test":
+                    initialContent = `스마일 인상 체크 결과(${context})를 보고 오셨군요. \n치아 교정이나 미백, 잇몸 성형 등 더 아름다운 미소를 위한 전문 상담을 도와드릴까요?`;
+                    break;
+                case "breath_mbti":
+                    initialContent = `입냄새 MBTI 결과(${context})에 대해 더 궁금하신가요? \n구취의 근본적인 원인(위장, 구강 건조 등)을 찾고 치료하는 방법에 대해 안내해 드릴 수 있습니다.`;
+                    break;
+                case "teeth_age":
+                    initialContent = `치아 나이 테스트 결과(${context})를 확인하셨군요. \n현재 치아 상태를 정확히 진단하고, 노화를 늦추는 맞춤형 관리법이나 치료가 필요한지 상담해 드릴까요?`;
+                    break;
+                case "stain_risk":
+                    initialContent = `커피 착색 위험도(${context})가 걱정되시나요? \n치아 미백이나 착색 예방을 위한 스케일링, 생활 습관 교정에 대해 전문적인 조언을 드릴 수 있습니다.`;
+                    break;
+                case "kids_mission":
+                    initialContent = `우리 아이 양치 히어로 미션(${context})을 완료했군요! \n아이의 충치 예방, 불소 도포, 올바른 양치 습관 교육에 대해 부모님과 상담을 진행해 드릴까요?`;
+                    break;
+            }
+        }
+
         setMessages([{
             role: "ai",
-            content: "안녕하세요. 죽전한의원 메디컬 AI입니다. \n더 정확한 진료를 위해 현재 불편하신 증상을 구체적으로 말씀해 주세요. (예: 통증 부위, 시작된 시기, 악화 요인 등)"
+            content: initialContent
         }]);
     }, []);
 
@@ -139,8 +165,8 @@ export default function MedicalChatInterface() {
                         {/* Avatar */}
                         <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === "ai"
-                                    ? "bg-blue-600 text-white"
-                                    : "bg-slate-200 text-slate-500"
+                                ? "bg-blue-600 text-white"
+                                : "bg-slate-200 text-slate-500"
                                 }`}
                         >
                             {msg.role === "ai" ? <Bot size={18} /> : <User size={18} />}
@@ -149,8 +175,8 @@ export default function MedicalChatInterface() {
                         {/* Bubble */}
                         <div
                             className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                    ? "bg-white text-slate-800 border border-slate-200 rounded-tl-none"
-                                    : "bg-blue-600 text-white rounded-tr-none"
+                                ? "bg-white text-slate-800 border border-slate-200 rounded-tl-none"
+                                : "bg-blue-600 text-white rounded-tr-none"
                                 }`}
                         >
                             {msg.imageUrl && (
