@@ -193,7 +193,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             <main className={`flex-1 w-full mx-auto ${props.isEmbedded ? "flex flex-col overflow-hidden p-0" : "max-w-5xl px-4 pb-20 pt-6"}`}>
                 {/* Hero Banner - Hidden if embedded */}
                 {!props.isEmbedded && (
-                    <div className="relative rounded-3xl overflow-hidden mb-8 h-[280px] md:h-[380px] shadow-2xl group">
+                    <div className="relative rounded-3xl overflow-hidden mb-8 h-[300px] md:h-[380px] shadow-2xl group">
                         <div className="absolute inset-0 bg-[url('/images/herbal-bg.png')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105 opacity-90 grayscale-[20%] sepia-[10%]"></div>
                         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
                         <div className="absolute inset-0 bg-traditional-primary/20 mix-blend-multiply"></div>
@@ -205,7 +205,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                             <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg font-serif leading-tight">
                                 AI 헬스케어로<br />알아보는 나의 건강
                             </h2>
-                            <p className="text-white/90 text-sm md:text-base font-light mb-8 max-w-lg leading-relaxed">
+                            <p className="text-white/90 text-sm md:text-base font-light mb-4 max-w-lg leading-relaxed">
                                 100년 전통의 한의학 지혜와 최첨단 AI 기술이 만나<br />당신만의 건강 리듬을 찾아드립니다.
                             </p>
 
