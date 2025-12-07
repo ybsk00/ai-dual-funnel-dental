@@ -28,27 +28,45 @@ const FLOWS: any = {
     smile_test: {
         title: "AI 스마일 인상체크",
         initialMessage: "당신의 미소 사진을 올려주시면, AI가 인상을 분석해 드려요! (재미용)",
-        steps: ["image_upload"]
+        steps: [
+            { id: "image_upload", question: "사진을 업로드해주세요." }
+        ]
     },
     breath_mbti: {
         title: "입냄새 MBTI",
         initialMessage: "몇 가지 질문으로 나의 입냄새 유형을 알아볼까요?",
-        steps: ["q1", "q2", "q3", "q4", "q5"] // Simplified for MVP
+        steps: [
+            { id: "q1", question: "평소 양치질은 하루에 몇 번 하시나요?" },
+            { id: "q2", question: "치실이나 치간칫솔은 사용하시나요?" },
+            { id: "q3", question: "혀 클리너도 사용하시나요?" },
+            { id: "q4", question: "입이 자주 마르다고 느끼시나요?" },
+            { id: "q5", question: "커피나 탄산음료를 자주 드시나요?" }
+        ]
     },
     teeth_age: {
         title: "치아 나이 테스트",
         initialMessage: "실제 나이와 치아 나이는 다를 수 있어요. 테스트를 시작할까요?",
-        steps: ["age_input", "q1", "q2", "q3"]
+        steps: [
+            { id: "age_input", question: "현재 나이가 어떻게 되시나요?" },
+            { id: "q1", question: "이가 시린 증상이 있나요?" },
+            { id: "q2", question: "잇몸에서 피가 난 적이 있나요?" },
+            { id: "q3", question: "단단한 음식을 씹을 때 불편한가요?" }
+        ]
     },
     stain_risk: {
         title: "커피 착색 카드",
         initialMessage: "평소 커피 습관을 알려주시면 착색 위험도를 알려드려요.",
-        steps: ["q1", "q2"]
+        steps: [
+            { id: "q1", question: "하루에 커피를 몇 잔 드시나요?" },
+            { id: "q2", question: "커피를 마신 후 바로 양치를 하시나요?" }
+        ]
     },
     kids_mission: {
         title: "양치 히어로",
         initialMessage: "안녕! 나는 치아를 지키는 닥터 래빗이야. 오늘 양치 미션을 완료했니?",
-        steps: ["mission_check"]
+        steps: [
+            { id: "mission_check", question: "오늘 아침, 점심, 저녁 양치를 모두 했나요?" }
+        ]
     }
 };
 
@@ -98,8 +116,6 @@ export default function ChatInterface(props: ChatInterfaceProps) {
     }, [messages]);
 
     const handleImageClick = () => {
-        // Allow image upload if it's a dental flow that requires it (smile_test, stain_risk)
-        // OR if the user is logged in (for general medical chat)
         if (["smile_test", "stain_risk"].includes(topic) || props.isLoggedIn) {
             fileInputRef.current?.click();
             return;
@@ -116,7 +132,6 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Simple check for image type
         if (!file.type.startsWith("image/")) {
             alert("이미지 파일만 업로드 가능합니다.");
             return;
@@ -126,17 +141,14 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         reader.onloadend = () => {
             const base64String = reader.result as string;
 
-            // If dental flow, store in flowState
             if (isDentalFlow) {
                 setFlowState(prev => ({ ...prev, image: base64String }));
                 setMessages(prev => [...prev, { role: "user", content: "📷 [사진이 업로드되었습니다]" }]);
 
-                // For smile_test, auto-trigger
                 if (topic === "smile_test") {
                     handleDentalFlow("📷 [사진 분석 요청]");
                 }
             } else {
-                // General chat image handling placeholder
                 setMessages(prev => [...prev, { role: "user", content: "📷 [사진 전송됨]" }]);
             }
         };
@@ -157,13 +169,11 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         setTurnCount(newTurnCount);
         setMessages(prev => [...prev, { role: "user", content: userMessage }]);
 
-        // Dental Flow Logic
         if (isDentalFlow) {
             await handleDentalFlow(userMessage);
             return;
         }
 
-        // Existing Logic (Resilience, etc.)
         if (!props.isLoggedIn && [3, 7].includes(newTurnCount)) {
             setLoginModalContent({
                 title: "상세한 상담이 필요하신가요?",
@@ -216,21 +226,41 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         setIsLoading(true);
 
         const currentFlow = FLOWS[topic];
-        const nextStepIndex = flowState.stepIndex + 1;
-        const updatedAnswers = { ...flowState.answers, [`step_${flowState.stepIndex}`]: userMessage };
+        // Determine current step based on flowState.stepIndex
+        // Note: stepIndex 0 is usually the start, but we might want to track which question we are ON.
+        // Let's assume stepIndex corresponds to the index in the steps array.
+
+        const currentStepIdx = flowState.stepIndex;
+        const currentStep = currentFlow.steps[currentStepIdx];
+
+        // Store answer for the *current* step (which the user just answered)
+        // If stepIndex is 0, it means we are answering the first question (or initial prompt).
+        // Actually, the initial message is displayed, then user answers.
+        // So userMessage is the answer to the *previous* question (or initial).
+
+        // Logic:
+        // 1. User answers.
+        // 2. We store that answer.
+        // 3. We check if there are more steps.
+        // 4. If yes, we ask the NEXT question via API (for empathy).
+        // 5. If no, we submit all answers for final analysis.
+
+        const updatedAnswers = { ...flowState.answers, [`step_${currentStepIdx}`]: userMessage };
+
+        // Calculate next step index
+        const nextStepIdx = currentStepIdx + 1;
+        const totalSteps = currentFlow.steps.length;
+        const isComplete = (topic === 'smile_test' && (flowState.image || userMessage.includes("사진"))) ||
+            (nextStepIdx >= totalSteps);
 
         setFlowState(prev => ({
             ...prev,
-            stepIndex: nextStepIndex,
+            stepIndex: nextStepIdx,
             answers: updatedAnswers
         }));
 
-        // Check if flow is complete based on defined steps
-        const totalSteps = FLOWS[topic]?.steps.length || 3;
-        const isComplete = (topic === 'smile_test' && (flowState.image || userMessage.includes("사진"))) ||
-            (nextStepIndex >= totalSteps);
-
         if (isComplete) {
+            // Final Analysis
             try {
                 const response = await fetch("/api/chat", {
                     method: "POST",
@@ -238,7 +268,8 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                     body: JSON.stringify({
                         flow_type: topic,
                         answers: updatedAnswers,
-                        image: flowState.image
+                        image: flowState.image,
+                        is_final: true // Flag for final analysis
                     }),
                 });
 
@@ -256,15 +287,33 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 setMessages(prev => [...prev, { role: "ai", content: "분석 중 오류가 발생했습니다." }]);
             }
         } else {
-            // Next Question (Mock)
-            setTimeout(() => {
-                let nextMsg = "다음 질문입니다.";
-                if (topic === 'breath_mbti') nextMsg = "평소 양치질은 하루에 몇 번 하시나요?";
-                if (topic === 'teeth_age') nextMsg = "이가 시린 증상이 있나요?";
-                if (topic === 'stain_risk') nextMsg = "하루에 커피를 몇 잔 드시나요?";
+            // Intermediate Step: Ask AI to generate empathy + next question
+            const nextStep = currentFlow.steps[nextStepIdx];
+            const nextQuestion = nextStep.question;
 
-                setMessages(prev => [...prev, { role: "ai", content: nextMsg }]);
-            }, 500);
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        flow_type: topic,
+                        answers: updatedAnswers, // Pass all answers so far
+                        current_answer: userMessage, // The latest answer to react to
+                        next_question: nextQuestion, // The question AI should ask next
+                        is_final: false
+                    }),
+                });
+
+                if (!response.ok) throw new Error("Failed to get next question");
+
+                const data = await response.json();
+                setMessages(prev => [...prev, { role: "ai", content: data.content }]);
+
+            } catch (error) {
+                console.error("Error:", error);
+                // Fallback if API fails
+                setMessages(prev => [...prev, { role: "ai", content: nextQuestion }]);
+            }
         }
 
         setIsLoading(false);

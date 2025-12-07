@@ -35,10 +35,31 @@ const generateCTA = (flowType: string) => {
 
 export async function POST(req: NextRequest) {
     try {
-        const { message, history, topic, flow_type, answers, image } = await req.json();
+        const { message, history, topic, flow_type, answers, image, current_answer, next_question, is_final } = await req.json();
 
         // 1. Dental Flow Handling (Funnel 1)
         if (flow_type) {
+            // Handle Intermediate Steps (Empathy + Next Question)
+            if (is_final === false) {
+                const systemPrompt = `
+[역할]
+당신은 "AI 스마일 덴탈케어"의 친절한 AI 상담사입니다.
+사용자의 답변에 대해 먼저 공감하거나 반응을 보인 후, 자연스럽게 다음 질문을 이어가세요.
+
+[대화 규칙]
+1. **공감/반응**: 사용자의 답변("${current_answer}")에 대해 긍정적이거나 공감하는 반응을 먼저 보여주세요. (예: "아, 하루 2번 꼼꼼히 닦으시는군요!", "치실 사용이 어려우실 수 있죠.")
+2. **다음 질문**: 그 다음, 반드시 "${next_question}" 질문을 하세요.
+3. **길이 제한**: 전체 응답은 **150자 이내**로 간결하게 작성하세요.
+4. **말투**: 친절하고 전문적인 "해요체"를 사용하세요.
+
+[현재 상황]
+사용자 답변: ${current_answer}
+해야 할 다음 질문: ${next_question}
+`;
+                const responseText = await generateText(systemPrompt, "healthcare");
+                return NextResponse.json({ role: "ai", content: responseText.trim() });
+            }
+
             let systemPrompt = "";
             let userPrompt = "";
 
