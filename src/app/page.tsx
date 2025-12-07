@@ -93,8 +93,8 @@ export default function LandingPage() {
               AI 헬스케어 솔루션
             </h2>
             <p className="text-traditional-subtext max-w-2xl mx-auto">
-              전통 한의학의 정밀함과 인공지능의 분석력이 만나<br />
-              당신만을 위한 최적의 건강 리듬을 찾아드립니다.
+              최첨단 치의학의 전문성과 인공지능의 분석력이 만나<br />
+              당신만을 위한 최적의 치아 건강 솔루션을 찾아드립니다.
             </p>
           </div>
 
@@ -138,7 +138,7 @@ export default function LandingPage() {
       <section className="relative py-32 overflow-hidden">
         {/* Background Image & Overlay */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[url('/images/herbal-bg.png')] bg-cover bg-center opacity-90 grayscale-[20%] sepia-[10%]"></div>
+          <div className="absolute inset-0 bg-[url('/images/dental-bg.png')] bg-cover bg-center opacity-90 grayscale-[20%] sepia-[10%]"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
           <div className="absolute inset-0 bg-traditional-primary/30 mix-blend-multiply"></div>
         </div>
