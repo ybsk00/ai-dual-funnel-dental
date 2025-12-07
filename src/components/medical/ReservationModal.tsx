@@ -1,28 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Clock, X, CheckCircle2, AlertCircle } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 type ReservationModalProps = {
     isOpen: boolean;
     onClose: () => void;
     initialTab?: "book" | "reschedule" | "cancel";
+    patientId: number | null;
 };
 
-export default function ReservationModal({ isOpen, onClose, initialTab = "book" }: ReservationModalProps) {
+export default function ReservationModal({ isOpen, onClose, initialTab = "book", patientId }: ReservationModalProps) {
     const [activeTab, setActiveTab] = useState<"book" | "reschedule" | "cancel">(initialTab);
     const [step, setStep] = useState(1); // 1: Input, 2: Confirm, 3: Success
+    const [date, setDate] = useState("");
+    const [time, setTime] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const supabase = createClient();
+
+    // Generate time slots (09:00 - 18:00, 10 min intervals)
+    const timeSlots = [];
+    for (let hour = 9; hour <= 18; hour++) {
+        for (let min = 0; min < 60; min += 10) {
+            if (hour === 18 && min > 0) break; // End at 18:00
+            const timeString = `${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}`;
+            timeSlots.push(timeString);
+        }
+    }
 
     if (!isOpen) return null;
 
-    const handleConfirm = () => {
-        setStep(3);
-        // In a real app, you would make an API call here
+    const handleConfirm = async () => {
+        if (!patientId) {
+            setError("환자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+            return;
+        }
+        if (!date || !time) {
+            setError("날짜와 시간을 모두 선택해주세요.");
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError(null);
+
+        try {
+            const visitDate = new Date(`${date}T${time}`);
+
+            const { error: insertError } = await supabase
+                .from('visits')
+                .insert({
+                    patient_id: patientId,
+                    visit_date: visitDate.toISOString(),
+                    visit_type: 'consultation',
+                    status: 'scheduled',
+                    chief_complaint: '환자 직접 예약'
+                });
+
+            if (insertError) throw insertError;
+
+            setStep(3);
+        } catch (err: any) {
+            console.error("Reservation error:", err);
+            setError("예약 처리 중 오류가 발생했습니다.");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const resetAndClose = () => {
         setStep(1);
         setActiveTab("book");
+        setDate("");
+        setTime("");
+        setError(null);
         onClose();
     };
 
@@ -99,15 +151,25 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book" 
                                                 <label className="text-xs font-medium text-gray-500">날짜</label>
                                                 <input
                                                     type="date"
+                                                    value={date}
+                                                    onChange={(e) => setDate(e.target.value)}
                                                     className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all"
                                                 />
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-xs font-medium text-gray-500">시간</label>
-                                                <input
-                                                    type="time"
-                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all"
-                                                />
+                                                <select
+                                                    value={time}
+                                                    onChange={(e) => setTime(e.target.value)}
+                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all appearance-none"
+                                                >
+                                                    <option value="">시간 선택</option>
+                                                    {timeSlots.map((slot) => (
+                                                        <option key={slot} value={slot}>
+                                                            {slot}
+                                                        </option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -129,10 +191,12 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book" 
                                             </div>
                                             <div className="space-y-1">
                                                 <label className="text-xs font-medium text-gray-500">시간</label>
-                                                <input
-                                                    type="time"
-                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all"
-                                                />
+                                                <select className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all">
+                                                    <option>시간 선택</option>
+                                                    {timeSlots.map((slot) => (
+                                                        <option key={slot} value={slot}>{slot}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                         </div>
                                     </div>
@@ -159,13 +223,25 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book" 
                                     </div>
                                 )}
 
+                                {error && (
+                                    <div className="text-red-500 text-sm text-center font-medium">
+                                        {error}
+                                    </div>
+                                )}
+
                                 <button
                                     onClick={handleConfirm}
-                                    className={`w-full py-3 rounded-xl font-medium text-white transition-colors mt-4 ${activeTab === "cancel" ? "bg-red-500 hover:bg-red-600" : "bg-traditional-accent hover:bg-opacity-90"}`}
+                                    disabled={isSubmitting || (activeTab === 'book' && (!date || !time))}
+                                    className={`w-full py-3 rounded-xl font-medium text-white transition-colors mt-4 
+                                        ${activeTab === "cancel" ? "bg-red-500 hover:bg-red-600" : "bg-traditional-accent hover:bg-opacity-90"}
+                                        ${(isSubmitting || (activeTab === 'book' && (!date || !time))) ? "opacity-50 cursor-not-allowed" : ""}
+                                    `}
                                 >
-                                    {activeTab === "book" && "예약 신청하기"}
-                                    {activeTab === "reschedule" && "변경 신청하기"}
-                                    {activeTab === "cancel" && "예약 취소하기"}
+                                    {isSubmitting ? "처리 중..." : (
+                                        activeTab === "book" ? "예약 신청하기" :
+                                            activeTab === "reschedule" ? "변경 신청하기" :
+                                                "예약 취소하기"
+                                    )}
                                 </button>
                             </div>
                         </>

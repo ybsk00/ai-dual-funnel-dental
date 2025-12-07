@@ -1,22 +1,82 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { Calendar, Clock, MoreHorizontal, Send } from "lucide-react";
 import ChatInterface from "@/components/chat/ChatInterface";
 import PatientHeader from "@/components/medical/PatientHeader";
 import ReservationModal from "@/components/medical/ReservationModal";
+import { createClient } from "@/lib/supabase/client";
 
 export default function PatientDashboard() {
     const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
-
-    // Mock appointment data
-    // Mock appointment data (Empty or Generic)
-    const appointment = {
+    const [patientId, setPatientId] = useState<number | null>(null);
+    const [appointment, setAppointment] = useState({
         date: "예약 없음",
         time: "",
         type: "예정된 진료가 없습니다.",
         doctor: ""
-    };
+    });
+    const supabase = createClient();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+
+            // 1. Get Patient ID
+            let currentPatientId = null;
+            const { data: patientData, error: patientError } = await supabase
+                .from('patients')
+                .select('id, name')
+                .eq('user_id', user.id)
+                .single();
+
+            if (patientData) {
+                currentPatientId = patientData.id;
+                setPatientId(patientData.id);
+            } else {
+                // Auto-create patient record if not exists (optional, but good for UX)
+                const { data: newPatient, error: createError } = await supabase
+                    .from('patients')
+                    .insert({
+                        user_id: user.id,
+                        name: user.user_metadata.full_name || user.email?.split('@')[0] || '환자',
+                        status: 'active'
+                    })
+                    .select()
+                    .single();
+
+                if (newPatient) {
+                    currentPatientId = newPatient.id;
+                    setPatientId(newPatient.id);
+                }
+            }
+
+            // 2. Get Latest Appointment
+            if (currentPatientId) {
+                const { data: visitData } = await supabase
+                    .from('visits')
+                    .select('*')
+                    .eq('patient_id', currentPatientId)
+                    .in('status', ['scheduled', 'in_progress'])
+                    .order('visit_date', { ascending: true })
+                    .limit(1)
+                    .single();
+
+                if (visitData) {
+                    const date = new Date(visitData.visit_date);
+                    setAppointment({
+                        date: `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`,
+                        time: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        type: visitData.visit_type === 'consultation' ? '일반 진료' : visitData.visit_type,
+                        doctor: "담당의"
+                    });
+                }
+            }
+        };
+
+        fetchData();
+    }, [supabase, isReservationModalOpen]); // Refresh when modal closes (to update appointment card)
 
     return (
         <div className="min-h-screen bg-traditional-bg font-sans selection:bg-traditional-accent selection:text-white">
@@ -53,6 +113,7 @@ export default function PatientDashboard() {
                 <ReservationModal
                     isOpen={isReservationModalOpen}
                     onClose={() => setIsReservationModalOpen(false)}
+                    patientId={patientId}
                 />
 
                 {/* Main Chat Interface Area */}

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import ConditionReport from "@/components/healthcare/ConditionReport";
 import ReservationModal from "@/components/medical/ReservationModal";
+import { createClient } from "@/lib/supabase/client";
 import SmileResultCard from "@/components/healthcare/results/SmileResultCard";
 import MbtiResultCard from "@/components/healthcare/results/MbtiResultCard";
 import TeethAgeCard from "@/components/healthcare/results/TeethAgeCard";
@@ -88,12 +89,34 @@ export default function ChatInterface(props: ChatInterfaceProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Dental Flow State
     const [flowState, setFlowState] = useState({
         stepIndex: 0,
         answers: {} as any,
         image: null as string | null
     });
+
+    // Fetch Patient ID if logged in
+    const [patientId, setPatientId] = useState<number | null>(null);
+    const supabase = createClient();
+
+    useEffect(() => {
+        const fetchPatientId = async () => {
+            if (props.isLoggedIn) {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    const { data: patient } = await supabase
+                        .from('patients')
+                        .select('id')
+                        .eq('user_id', user.id)
+                        .single();
+                    if (patient) {
+                        setPatientId(patient.id);
+                    }
+                }
+            }
+        };
+        fetchPatientId();
+    }, [props.isLoggedIn, supabase]);
 
     // Welcome message based on topic
     useEffect(() => {
@@ -379,6 +402,8 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 </header>
             )}
 
+
+
             <main className={`flex-1 w-full mx-auto ${props.isEmbedded ? "flex flex-col overflow-hidden p-0" : "max-w-5xl px-4 pb-20 pt-6"}`}>
                 {/* Hero Banner - Hidden if embedded */}
                 {!props.isEmbedded && (
@@ -574,6 +599,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 isOpen={showReservationModal}
                 onClose={() => setShowReservationModal(false)}
                 initialTab="book"
+                patientId={patientId}
             />
         </div >
     );
