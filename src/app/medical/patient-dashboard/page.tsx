@@ -71,6 +71,13 @@ export default function PatientDashboard() {
                         type: visitData.visit_type === 'consultation' ? '일반 진료' : visitData.visit_type,
                         doctor: "담당의"
                     });
+                } else {
+                    setAppointment({
+                        date: "예약 없음",
+                        time: "",
+                        type: "예정된 진료가 없습니다.",
+                        doctor: ""
+                    });
                 }
             }
         };
