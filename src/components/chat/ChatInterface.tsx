@@ -387,12 +387,12 @@ export default function ChatInterface(props: ChatInterfaceProps) {
         <div className={`${props.isEmbedded ? "h-full" : "min-h-screen"} bg-traditional-bg font-sans flex flex-col selection:bg-traditional-accent selection:text-white`}>
             {/* Header - Hidden if embedded */}
             {!props.isEmbedded && (
-                <header className="bg-white/80 backdrop-blur-md border-b border-traditional-muted/50 px-6 py-4 flex items-center justify-between sticky top-0 z-50 transition-all duration-300">
+                <header className="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4 flex items-center justify-between sticky top-0 z-50 transition-all duration-300">
                     <Link href="/" className="flex items-center gap-3 group">
                         <div className="w-8 h-8 bg-traditional-primary rounded-lg flex items-center justify-center shadow-sm group-hover:bg-traditional-accent transition-colors duration-300">
                             <span className="text-white text-xs font-bold font-serif">AI</span>
                         </div>
-                        <span className="text-lg font-bold text-traditional-text tracking-tight group-hover:text-traditional-primary transition-colors">AI 스마일 덴탈케어</span>
+                        <span className="text-lg font-bold text-white tracking-tight group-hover:text-traditional-primary transition-colors">AI 스마일 덴탈케어</span>
                     </Link>
                     <div className="hidden md:flex items-center gap-6 text-sm font-medium text-traditional-subtext">
                         <Link href="/login" className="px-6 py-2 bg-traditional-primary text-white text-sm font-medium rounded-full hover:bg-traditional-accent hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
@@ -527,15 +527,15 @@ export default function ChatInterface(props: ChatInterfaceProps) {
             </main>
 
             {/* Input Area */}
-            <div className={`${props.isEmbedded ? "relative bg-white border-t border-gray-100" : "fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-traditional-muted/50"} p-4 z-40`}>
+            <div className={`${props.isEmbedded ? "relative bg-slate-900 border-t border-slate-800" : "fixed bottom-0 left-0 right-0 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800"} p-4 z-40`}>
                 <div className={`${props.isEmbedded ? "w-full" : "max-w-4xl mx-auto"} relative`}>
-                    <form onSubmit={handleSubmit} className="relative bg-white rounded-full shadow-xl border border-traditional-muted/50 flex items-center p-2 pl-6 transition-shadow hover:shadow-2xl">
+                    <form onSubmit={handleSubmit} className="relative bg-slate-800 rounded-full shadow-xl border border-slate-700 flex items-center p-2 pl-6 transition-shadow hover:shadow-2xl">
                         <input
                             type="text"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             placeholder="증상이나 궁금한 점을 입력해주세요..."
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-traditional-text placeholder:text-traditional-subtext/50 text-base"
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder:text-slate-400 text-base"
                         />
                         <input
                             type="file"
