@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Calendar, Search, Bell, Video, LogOut } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function DoctorSidebar() {
     const pathname = usePathname();
@@ -49,7 +50,14 @@ export default function DoctorSidebar() {
 
             {/* Footer */}
             <div className="p-4 border-t border-slate-800">
-                <button className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition-colors">
+                <button
+                    onClick={async () => {
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
+                        window.location.href = "/login";
+                    }}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition-colors"
+                >
                     <LogOut size={20} className="text-slate-500" />
                     로그아웃
                 </button>
