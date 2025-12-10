@@ -19,7 +19,7 @@ type KidsHeroCardProps = {
 
 export default function KidsHeroCard({ result, isLoggedIn }: KidsHeroCardProps) {
     return (
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-100 max-w-sm mx-auto my-4">
+        <div className="bg-slate-900 rounded-2xl shadow-lg overflow-hidden border border-slate-800 max-w-sm mx-auto my-4">
             <div className="bg-gradient-to-br from-pink-100 to-purple-100 p-6 text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-full bg-[url('/images/confetti.png')] opacity-20"></div>
 
@@ -36,22 +36,22 @@ export default function KidsHeroCard({ result, isLoggedIn }: KidsHeroCardProps) 
             </div>
 
             <div className="p-6 space-y-4">
-                <div className="bg-pink-50 p-4 rounded-xl border border-pink-100 text-center">
-                    <p className="text-slate-700 font-medium leading-relaxed">
+                <div className="bg-slate-800 p-4 rounded-xl border border-slate-700 text-center">
+                    <p className="text-slate-200 font-medium leading-relaxed">
                         "{result.praise_message}"
                     </p>
                 </div>
 
                 <div>
-                    <h4 className="font-bold text-slate-700 mb-2 text-sm">🚀 다음 미션</h4>
-                    <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                    <h4 className="font-bold text-slate-300 mb-2 text-sm">🚀 다음 미션</h4>
+                    <p className="text-sm text-slate-400 bg-slate-800 p-3 rounded-lg border border-slate-700">
                         {result.next_mission}
                     </p>
                 </div>
 
                 {/* CTA Section */}
-                <div className="border-t border-slate-100 pt-4 mt-4">
-                    <h4 className="font-bold text-slate-800 mb-1 text-sm">{result.cta.title}</h4>
+                <div className="border-t border-slate-800 pt-4 mt-4">
+                    <h4 className="font-bold text-slate-200 mb-1 text-sm">{result.cta.title}</h4>
                     <p className="text-xs text-slate-500 mb-3 leading-relaxed">{result.cta.body}</p>
 
                     {isLoggedIn ? (

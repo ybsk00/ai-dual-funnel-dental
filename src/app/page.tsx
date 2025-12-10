@@ -37,9 +37,9 @@ export default function LandingPage() {
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-40 mix-blend-multiply filter sepia-[0.3]"
+              className="w-full h-full object-cover opacity-60 mix-blend-overlay filter brightness-75"
             >
-              <source src="/1.mp4" type="video/mp4" />
+              <source src="/2.mp4" type="video/mp4" />
             </video>
           </div>
           {/* Texture Overlay Removed for Modern Look */}
@@ -47,7 +47,7 @@ export default function LandingPage() {
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto space-y-8 animate-fade-in">
-          <div className="inline-block px-4 py-1.5 rounded-full bg-white/30 backdrop-blur-sm border border-white/40 text-traditional-primary text-sm font-semibold mb-4 shadow-sm animate-slide-up">
+          <div className="inline-block px-4 py-1.5 rounded-full bg-slate-800/50 backdrop-blur-sm border border-slate-700 text-traditional-primary text-sm font-semibold mb-4 shadow-sm animate-slide-up">
             AI 기반 맞춤형 덴탈 헬스케어
           </div>
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-traditional-text drop-shadow-sm leading-tight font-serif">
@@ -75,7 +75,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/login"
-              className="px-8 py-4 bg-white/50 backdrop-blur-sm text-traditional-primary border border-traditional-primary/20 text-lg font-medium rounded-full hover:bg-white hover:shadow-lg transition-all duration-300"
+              className="px-8 py-4 bg-slate-800/50 backdrop-blur-sm text-traditional-primary border border-traditional-primary/20 text-lg font-medium rounded-full hover:bg-slate-800 hover:shadow-lg transition-all duration-300"
             >
               로그인
             </Link>
@@ -85,7 +85,7 @@ export default function LandingPage() {
 
       {/* Features Section - Glassmorphism Cards */}
       <section className="relative py-24 px-6 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-traditional-bg to-white z-0"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-traditional-bg to-slate-900 z-0"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto">
           <div className="text-center mb-20 space-y-4">
@@ -119,10 +119,10 @@ export default function LandingPage() {
                 bg: "bg-brown-50/50"
               }
             ].map((feature, idx) => (
-              <div key={idx} className={`group relative p-8 rounded-3xl border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden`}>
-                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-white/80 to-transparent`}></div>
+              <div key={idx} className={`group relative p-8 rounded-3xl border border-slate-800 bg-slate-900/40 backdrop-blur-xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden`}>
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-slate-800/80 to-transparent`}></div>
                 <div className="relative z-10">
-                  <div className={`w-16 h-16 ${feature.bg} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
+                  <div className={`w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-inner`}>
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-bold text-traditional-text mb-4 font-serif">{feature.title}</h3>

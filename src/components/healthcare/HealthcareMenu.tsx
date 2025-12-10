@@ -53,14 +53,14 @@ export default function HealthcareMenu() {
                 <Link
                     key={item.id}
                     href={item.href}
-                    className="flex items-center gap-4 p-6 bg-white rounded-2xl shadow-sm border border-slate-100 hover:shadow-md hover:-translate-y-1 transition-all group"
+                    className="flex items-center gap-4 p-6 bg-slate-900 rounded-2xl shadow-sm border border-slate-800 hover:shadow-md hover:-translate-y-1 transition-all group"
                 >
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${item.color} group-hover:scale-110 transition-transform`}>
                         <item.icon size={24} />
                     </div>
                     <div>
-                        <h3 className="font-bold text-slate-800">{item.label}</h3>
-                        <p className="text-sm text-slate-500">{item.desc}</p>
+                        <h3 className="font-bold text-slate-100">{item.label}</h3>
+                        <p className="text-sm text-slate-400">{item.desc}</p>
                     </div>
                 </Link>
             ))}

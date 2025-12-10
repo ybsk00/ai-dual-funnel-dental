@@ -11,26 +11,26 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
-        // Healthcare Theme (Modern Dental)
+        // Healthcare Theme (Modern Dental + AI Dark Theme)
         traditional: {
-          bg: "#FFFFFF", // Clean White
-          text: "#0F172A", // Slate 900 (Sharp, Professional)
-          subtext: "#64748B", // Slate 500 (Modern Gray)
-          primary: "#005F73", // Deep Teal/Navy (Trust & Professionalism)
-          secondary: "#0A9396", // Medical Teal (Freshness)
-          accent: "#94D2BD", // Soft Mint (Calm & Clean)
-          muted: "#E2E8F0", // Slate 200 (Subtle Borders)
-          ai: "#3B82F6", // AI Blue (Kept for consistency)
+          bg: "#020617", // Slate 950 (Deep Tech Background)
+          text: "#F8FAFC", // Slate 50 (High Contrast Text)
+          subtext: "#94A3B8", // Slate 400 (Muted Text)
+          primary: "#2DD4BF", // Teal 400 (Bright Dental Accent)
+          secondary: "#3B82F6", // Blue 500 (AI Tech Accent)
+          accent: "#06B6D4", // Cyan 500 (Futuristic Glow)
+          muted: "#1E293B", // Slate 800 (Borders/Separators)
+          ai: "#6366F1", // Indigo 500 (Deep AI)
         },
-        // Medical Theme (Modern/Clinic - Integrated with Traditional)
+        // Medical Theme (Unified Dark Theme)
         medical: {
-          bg: "#FFFFFF",
-          text: "#111827",
-          subtext: "#4B5563",
-          primary: "#2C3E2C", // Unified with Traditional Primary
-          secondary: "#10B981", // Emerald Green (kept for medical cues)
-          accent: "#3B82F6", // Blue
-          muted: "#F3F4F6",
+          bg: "#020617", // Slate 950
+          text: "#F8FAFC", // Slate 50
+          subtext: "#94A3B8", // Slate 400
+          primary: "#34D399", // Emerald 400 (Medical Green - Bright)
+          secondary: "#10B981", // Emerald 500
+          accent: "#60A5FA", // Blue 400
+          muted: "#1F2937", // Gray 800
         },
       },
 
