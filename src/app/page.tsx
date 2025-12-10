@@ -5,7 +5,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-traditional-bg text-traditional-text font-sans selection:bg-traditional-accent selection:text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-traditional-muted/50 transition-all duration-300">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 transition-all duration-300">
         <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
           <div className="flex items-center gap-3 group cursor-pointer">
             <div className="w-8 h-8 bg-traditional-primary rounded-lg flex items-center justify-center shadow-md group-hover:bg-traditional-accent transition-colors duration-300">
@@ -37,7 +37,7 @@ export default function LandingPage() {
               loop
               muted
               playsInline
-              className="w-full h-full object-cover opacity-60 mix-blend-overlay filter brightness-75"
+              className="w-full h-full object-cover opacity-100"
             >
               <source src="/2.mp4" type="video/mp4" />
             </video>

@@ -134,9 +134,9 @@ export default function MedicalChatInterface() {
     };
 
     return (
-        <div className="flex flex-col h-screen bg-slate-950 font-sans max-w-md mx-auto shadow-2xl overflow-hidden border-x border-slate-800">
+        <div className="flex flex-col h-screen bg-slate-800 font-sans max-w-md mx-auto shadow-2xl overflow-hidden border-x border-slate-700">
             {/* Medical Header */}
-            <header className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 sticky top-0 z-10 shadow-sm">
+            <header className="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-700 sticky top-0 z-10 shadow-sm">
                 <div className="flex items-center">
                     <Link href="/medical/dashboard" className="p-2 -ml-2 text-slate-400 hover:text-white transition-colors">
                         <ArrowLeft size={24} />
@@ -161,15 +161,15 @@ export default function MedicalChatInterface() {
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-cover opacity-80"
+                    className="w-full h-full object-cover opacity-100"
                 >
                     <source src="/3.mp4" type="video/mp4" />
                 </video>
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent"></div>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-950">
+            <div className="flex-1 overflow-y-auto p-4 space-y-6 bg-slate-800">
                 {messages.map((msg, idx) => (
                     <div
                         key={idx}
@@ -179,8 +179,8 @@ export default function MedicalChatInterface() {
                         {/* Avatar */}
                         <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${msg.role === "ai"
-                                ? "bg-slate-800 text-blue-400 border border-slate-700"
-                                : "bg-blue-600 text-white"
+                                ? "bg-slate-900 text-blue-400 border border-slate-700"
+                                : "bg-blue-900 text-white"
                                 }`}
                         >
                             {msg.role === "ai" ? <Bot size={18} /> : <User size={18} />}
@@ -189,8 +189,8 @@ export default function MedicalChatInterface() {
                         {/* Bubble */}
                         <div
                             className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                ? "bg-slate-900 text-slate-100 border border-slate-800 rounded-tl-none"
-                                : "bg-blue-600 text-white rounded-tr-none"
+                                ? "bg-slate-900 text-white border border-slate-700 rounded-tl-none"
+                                : "bg-blue-900 text-white rounded-tr-none"
                                 }`}
                         >
                             {msg.imageUrl && (
@@ -202,10 +202,10 @@ export default function MedicalChatInterface() {
                 ))}
                 {isLoading && (
                     <div className="flex items-start gap-3 animate-pulse">
-                        <div className="w-8 h-8 rounded-full bg-slate-800 text-blue-400 border border-slate-700 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-full bg-slate-900 text-blue-400 border border-slate-700 flex items-center justify-center">
                             <Bot size={18} />
                         </div>
-                        <div className="bg-slate-900 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-800 shadow-sm">
+                        <div className="bg-slate-900 px-4 py-3 rounded-2xl rounded-tl-none border border-slate-700 shadow-sm">
                             <div className="flex gap-1">
                                 <span className="w-2 h-2 bg-slate-600 rounded-full animate-bounce"></span>
                                 <span className="w-2 h-2 bg-slate-600 rounded-full animate-bounce delay-100"></span>
@@ -218,7 +218,7 @@ export default function MedicalChatInterface() {
             </div>
 
             {/* Input Area */}
-            <div className="p-4 bg-slate-900 border-t border-slate-800">
+            <div className="p-4 bg-slate-900 border-t border-slate-700">
                 <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
                     <input
                         type="file"
