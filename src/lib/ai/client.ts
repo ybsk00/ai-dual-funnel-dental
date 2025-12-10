@@ -1,12 +1,17 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+let genAI: GoogleGenerativeAI | null = null;
 
-if (!apiKey) {
-    console.warn("GEMINI_API_KEY is not set in environment variables.");
+function getGenAI() {
+    if (!genAI) {
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            console.warn("GEMINI_API_KEY is not set in environment variables.");
+        }
+        genAI = new GoogleGenerativeAI(apiKey || "dummy-key-for-build");
+    }
+    return genAI;
 }
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
 
 // Model configurations
 const HEALTHCARE_MODEL = "gemini-2.5-flash"; // Fast, efficient for general healthcare chat
@@ -16,16 +21,17 @@ const VISION_MODEL = "gemini-2.5-flash"; // For multimodal analysis
 export type AIModelMode = "healthcare" | "medical" | "vision";
 
 export function getModel(mode: AIModelMode) {
+    const ai = getGenAI();
     switch (mode) {
         case "healthcare":
-            return genAI.getGenerativeModel({ model: HEALTHCARE_MODEL });
+            return ai.getGenerativeModel({ model: HEALTHCARE_MODEL });
         case "medical":
             // Fallback logic could be added here if 3.0 is not yet available in the specific region/tier
-            return genAI.getGenerativeModel({ model: MEDICAL_MODEL });
+            return ai.getGenerativeModel({ model: MEDICAL_MODEL });
         case "vision":
-            return genAI.getGenerativeModel({ model: VISION_MODEL });
+            return ai.getGenerativeModel({ model: VISION_MODEL });
         default:
-            return genAI.getGenerativeModel({ model: HEALTHCARE_MODEL });
+            return ai.getGenerativeModel({ model: HEALTHCARE_MODEL });
     }
 }
 

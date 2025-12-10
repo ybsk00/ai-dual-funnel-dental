@@ -2,8 +2,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-
 export async function analyzeMedicalImage(formData: FormData) {
     try {
         const file = formData.get("image") as File;
@@ -17,6 +15,8 @@ export async function analyzeMedicalImage(formData: FormData) {
         if (!process.env.GEMINI_API_KEY) {
             return { error: "GEMINI_API_KEY is not set" };
         }
+
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
         // Convert file to base64
         const arrayBuffer = await file.arrayBuffer();

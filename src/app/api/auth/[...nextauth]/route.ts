@@ -4,8 +4,8 @@ import NaverProvider from "next-auth/providers/naver"
 const handler = NextAuth({
     providers: [
         NaverProvider({
-            clientId: process.env.NAVER_CLIENT_ID!,
-            clientSecret: process.env.NAVER_CLIENT_SECRET!,
+            clientId: process.env.NAVER_CLIENT_ID || "",
+            clientSecret: process.env.NAVER_CLIENT_SECRET || "",
         }),
     ],
     pages: {
@@ -21,7 +21,7 @@ const handler = NextAuth({
         }
     },
     debug: true, // Enable debug logs for Vercel
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXTAUTH_SECRET || "dummy-secret-for-build",
 })
 
 export { handler as GET, handler as POST }
