@@ -15,16 +15,16 @@ export default function DoctorSidebar() {
     ];
 
     return (
-        <aside className="w-64 bg-white border-r border-gray-200 h-screen flex flex-col fixed left-0 top-0 z-30">
+        <aside className="w-64 bg-slate-900 border-r border-slate-800 h-screen flex flex-col fixed left-0 top-0 z-30">
             {/* Header */}
-            <div className="p-6 border-b border-gray-100">
+            <div className="p-6 border-b border-slate-800">
                 <div className="flex items-center gap-3 mb-1">
-                    <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xs">
                         AI
                     </div>
-                    <h1 className="font-bold text-gray-900 text-lg">AI 스마일 덴탈케어</h1>
+                    <h1 className="font-bold text-white text-lg">AI 스마일 덴탈케어</h1>
                 </div>
-                <p className="text-xs text-teal-600 font-medium pl-11">Doctor Dashboard</p>
+                <p className="text-xs text-blue-400 font-medium pl-11">Doctor Dashboard</p>
             </div>
 
             {/* Menu */}
@@ -36,11 +36,11 @@ export default function DoctorSidebar() {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                                ? "bg-teal-50 text-teal-700"
-                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                ? "bg-slate-800 text-blue-400"
+                                : "text-slate-400 hover:bg-slate-800 hover:text-white"
                                 }`}
                         >
-                            <item.icon size={20} className={isActive ? "text-teal-600" : "text-gray-400"} />
+                            <item.icon size={20} className={isActive ? "text-blue-400" : "text-slate-500"} />
                             {item.label}
                         </Link>
                     );
@@ -48,9 +48,9 @@ export default function DoctorSidebar() {
             </nav>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-100">
-                <button className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-xl transition-colors">
-                    <LogOut size={20} className="text-gray-400" />
+            <div className="p-4 border-t border-slate-800">
+                <button className="flex items-center gap-3 px-4 py-3 w-full text-left text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white rounded-xl transition-colors">
+                    <LogOut size={20} className="text-slate-500" />
                     로그아웃
                 </button>
             </div>
