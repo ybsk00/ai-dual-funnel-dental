@@ -450,7 +450,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                 )}
 
                 {/* Chat Area */}
-                <div className={`bg-white/60 backdrop-blur-xl border border-white/50 rounded-3xl p-6 space-y-8 shadow-xl ${props.isEmbedded ? "flex-1 overflow-y-auto rounded-none border-x-0 border-t-0 bg-transparent shadow-none" : "min-h-[500px]"}`}>
+                <div className={`bg-[#1e293b]/90 backdrop-blur-xl border border-slate-700 rounded-3xl p-6 space-y-8 shadow-xl ${props.isEmbedded ? "flex-1 overflow-y-auto rounded-none border-x-0 border-t-0 bg-transparent shadow-none" : "min-h-[500px]"}`}>
                     {messages.map((msg, idx) => (
                         <div key={idx}>
                             <div
@@ -483,7 +483,7 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                                     </span>
                                     <div
                                         className={`px-6 py-4 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === "ai"
-                                            ? "bg-white text-traditional-text border border-traditional-muted rounded-tl-none"
+                                            ? "bg-[#020617] text-white border border-slate-800 rounded-tl-none"
                                             : "bg-traditional-primary text-white rounded-tr-none shadow-md"
                                             }`}
                                     >
@@ -513,11 +513,11 @@ export default function ChatInterface(props: ChatInterfaceProps) {
                                     className="w-full h-full object-cover"
                                 />
                             </div>
-                            <div className="bg-white px-6 py-4 rounded-2xl rounded-tl-none border border-traditional-muted shadow-sm">
+                            <div className="bg-[#020617] px-6 py-4 rounded-2xl rounded-tl-none border border-slate-800 shadow-sm">
                                 <div className="flex gap-1.5">
-                                    <span className="w-2 h-2 bg-traditional-primary/40 rounded-full animate-bounce"></span>
-                                    <span className="w-2 h-2 bg-traditional-primary/40 rounded-full animate-bounce delay-100"></span>
-                                    <span className="w-2 h-2 bg-traditional-primary/40 rounded-full animate-bounce delay-200"></span>
+                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></span>
+                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-100"></span>
+                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-200"></span>
                                 </div>
                             </div>
                         </div>
