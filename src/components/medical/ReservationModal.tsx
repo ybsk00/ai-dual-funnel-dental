@@ -122,14 +122,14 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100">
+            <div className="bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all scale-100 border border-slate-700">
                 {/* Header */}
-                <div className="bg-traditional-bg p-4 flex justify-between items-center border-b border-traditional-muted/20">
-                    <h3 className="font-bold text-lg text-traditional-text flex items-center gap-2">
-                        <Calendar className="w-5 h-5 text-traditional-accent" />
+                <div className="bg-slate-900/50 p-4 flex justify-between items-center border-b border-slate-700">
+                    <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-blue-400" />
                         예약 관리
                     </h3>
-                    <button onClick={resetAndClose} className="text-gray-400 hover:text-gray-600">
+                    <button onClick={resetAndClose} className="text-slate-400 hover:text-white">
                         <X size={20} />
                     </button>
                 </div>
@@ -138,11 +138,11 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
                 <div className="p-6">
                     {step === 3 ? (
                         <div className="text-center py-8">
-                            <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-green-500/20 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <CheckCircle2 size={32} />
                             </div>
-                            <h4 className="text-xl font-bold text-gray-900 mb-2">처리되었습니다</h4>
-                            <p className="text-gray-600 mb-6">
+                            <h4 className="text-xl font-bold text-white mb-2">처리되었습니다</h4>
+                            <p className="text-slate-400 mb-6">
                                 {activeTab === "book" && "예약 신청이 완료되었습니다."}
                                 {activeTab === "reschedule" && "예약 변경이 완료되었습니다."}
                                 {activeTab === "cancel" && "예약이 취소되었습니다."}
@@ -159,22 +159,22 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
                     ) : (
                         <>
                             {/* Tabs */}
-                            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+                            <div className="flex bg-slate-900 p-1 rounded-xl mb-6">
                                 <button
                                     onClick={() => setActiveTab("book")}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "book" ? "bg-white text-traditional-accent shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "book" ? "bg-slate-700 text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-300"}`}
                                 >
                                     예약하기
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("reschedule")}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "reschedule" ? "bg-white text-traditional-accent shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "reschedule" ? "bg-slate-700 text-blue-400 shadow-sm" : "text-slate-500 hover:text-slate-300"}`}
                                 >
                                     예약변경
                                 </button>
                                 <button
                                     onClick={() => setActiveTab("cancel")}
-                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "cancel" ? "bg-white text-red-500 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                                    className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === "cancel" ? "bg-slate-700 text-red-400 shadow-sm" : "text-slate-500 hover:text-slate-300"}`}
                                 >
                                     예약취소
                                 </button>
@@ -184,26 +184,26 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
                             <div className="space-y-4">
                                 {activeTab === "book" && (
                                     <div className="space-y-4">
-                                        <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 text-sm text-blue-800">
+                                        <div className="bg-blue-500/10 p-4 rounded-xl border border-blue-500/20 text-sm text-blue-400">
                                             <p className="font-bold mb-1">진료 예약</p>
                                             <p>원하시는 날짜와 시간을 선택해주세요.</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500">날짜</label>
+                                                <label className="text-xs font-medium text-slate-400">날짜</label>
                                                 <input
                                                     type="date"
                                                     value={date}
                                                     onChange={(e) => setDate(e.target.value)}
-                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all"
+                                                    className="w-full p-3 border border-slate-600 rounded-xl bg-slate-700 text-white focus:bg-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500">시간</label>
+                                                <label className="text-xs font-medium text-slate-400">시간</label>
                                                 <select
                                                     value={time}
                                                     onChange={(e) => setTime(e.target.value)}
-                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all appearance-none"
+                                                    className="w-full p-3 border border-slate-600 rounded-xl bg-slate-700 text-white focus:bg-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all appearance-none"
                                                 >
                                                     <option value="">시간 선택</option>
                                                     {timeSlots.map((slot) => (
@@ -219,21 +219,21 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
 
                                 {activeTab === "reschedule" && (
                                     <div className="space-y-4">
-                                        <div className="bg-amber-50 p-4 rounded-xl border border-amber-100 text-sm text-amber-800">
+                                        <div className="bg-amber-500/10 p-4 rounded-xl border border-amber-500/20 text-sm text-amber-400">
                                             <p className="font-bold mb-1">예약 변경</p>
                                             <p>변경하실 날짜와 시간을 선택해주세요.</p>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500">날짜</label>
+                                                <label className="text-xs font-medium text-slate-400">날짜</label>
                                                 <input
                                                     type="date"
-                                                    className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all"
+                                                    className="w-full p-3 border border-slate-600 rounded-xl bg-slate-700 text-white focus:bg-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <label className="text-xs font-medium text-gray-500">시간</label>
-                                                <select className="w-full p-3 border rounded-xl bg-gray-50 focus:bg-white focus:ring-2 focus:ring-traditional-accent focus:border-transparent outline-none transition-all">
+                                                <label className="text-xs font-medium text-slate-400">시간</label>
+                                                <select className="w-full p-3 border border-slate-600 rounded-xl bg-slate-700 text-white focus:bg-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
                                                     <option>시간 선택</option>
                                                     {timeSlots.map((slot) => (
                                                         <option key={slot} value={slot}>{slot}</option>
@@ -246,16 +246,16 @@ export default function ReservationModal({ isOpen, onClose, initialTab = "book",
 
                                 {activeTab === "cancel" && (
                                     <div className="space-y-4">
-                                        <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-sm text-red-800 flex items-start gap-3">
+                                        <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20 text-sm text-red-400 flex items-start gap-3">
                                             <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
                                             <div>
                                                 <p className="font-bold mb-1">정말 취소하시겠습니까?</p>
                                                 <p>당일 취소는 노쇼 페널티가 발생할 수 있습니다.</p>
                                             </div>
                                         </div>
-                                        <div className="bg-white border rounded-xl p-4">
-                                            <p className="text-sm text-gray-600 font-medium mb-2">취소 사유</p>
-                                            <select className="w-full p-2 border rounded-lg text-sm">
+                                        <div className="bg-slate-700 border border-slate-600 rounded-xl p-4">
+                                            <p className="text-sm text-slate-300 font-medium mb-2">취소 사유</p>
+                                            <select className="w-full p-2 border border-slate-500 rounded-lg text-sm bg-slate-800 text-white">
                                                 <option>단순 변심</option>
                                                 <option>일정 변경</option>
                                                 <option>증상 호전</option>

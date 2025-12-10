@@ -137,25 +137,25 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen bg-traditional-bg flex flex-col items-center justify-center p-6 font-sans">
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 font-sans">
             <div className="absolute inset-0 opacity-10 bg-[url('/texture-hanji.png')] pointer-events-none mix-blend-multiply"></div>
 
-            <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg border border-traditional-muted relative z-10 animate-fade-in">
+            <div className="w-full max-w-md bg-slate-800 p-8 rounded-2xl shadow-lg border border-slate-700 relative z-10 animate-fade-in">
                 {/* Branding Logo */}
                 <div className="flex justify-center mb-6">
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 bg-traditional-primary rounded-xl flex items-center justify-center shadow-md group-hover:bg-traditional-accent transition-colors duration-300">
+                        <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-md group-hover:bg-blue-500 transition-colors duration-300">
                             <span className="text-white text-sm font-bold font-serif">AI</span>
                         </div>
-                        <span className="text-xl font-bold text-traditional-text tracking-tight group-hover:text-traditional-primary transition-colors">AI 스마일 덴탈케어</span>
+                        <span className="text-xl font-bold text-white tracking-tight group-hover:text-blue-400 transition-colors">AI 스마일 덴탈케어</span>
                     </Link>
                 </div>
 
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-traditional-text mb-2">
+                    <h1 className="text-2xl font-bold text-white mb-2">
                         {isSignUp ? "회원가입" : "로그인"}
                     </h1>
-                    <p className="text-traditional-subtext text-sm">
+                    <p className="text-slate-400 text-sm">
                         {isSignUp
                             ? "서비스 이용을 위해 정보를 입력해주세요."
                             : "더 정확한 진단과 처방을 위해\n의료진과 연결합니다."}
@@ -165,47 +165,47 @@ export default function LoginPage() {
                 <form onSubmit={isSignUp ? handleSignUp : handleLogin} className="space-y-4">
                     {isSignUp && (
                         <div>
-                            <label className="block text-sm font-medium text-traditional-text mb-1">성명</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">성명</label>
                             <input
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                className="w-full px-4 py-2 border border-traditional-muted rounded-lg focus:outline-none focus:border-traditional-primary focus:ring-1 focus:ring-traditional-primary"
+                                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500"
                                 placeholder="홍길동"
                                 required
                             />
                         </div>
                     )}
                     <div>
-                        <label className="block text-sm font-medium text-traditional-text mb-1">이메일</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">이메일</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full px-4 py-2 border border-traditional-muted rounded-lg focus:outline-none focus:border-traditional-primary focus:ring-1 focus:ring-traditional-primary"
+                            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500"
                             placeholder="example@email.com"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-traditional-text mb-1">비밀번호</label>
+                        <label className="block text-sm font-medium text-slate-300 mb-1">비밀번호</label>
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full px-4 py-2 border border-traditional-muted rounded-lg focus:outline-none focus:border-traditional-primary focus:ring-1 focus:ring-traditional-primary"
+                            className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500"
                             placeholder="••••••••"
                             required
                         />
                     </div>
                     {isSignUp && (
                         <div>
-                            <label className="block text-sm font-medium text-traditional-text mb-1">비밀번호 확인</label>
+                            <label className="block text-sm font-medium text-slate-300 mb-1">비밀번호 확인</label>
                             <input
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                className="w-full px-4 py-2 border border-traditional-muted rounded-lg focus:outline-none focus:border-traditional-primary focus:ring-1 focus:ring-traditional-primary"
+                                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 placeholder:text-slate-500"
                                 placeholder="••••••••"
                                 required
                             />
@@ -214,7 +214,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className="w-full py-3 bg-traditional-primary text-white rounded-lg font-medium hover:bg-traditional-primary/90 transition-colors disabled:opacity-50"
+                        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
                     >
                         {loading
                             ? (isSignUp ? "가입 중..." : "로그인 중...")
@@ -226,7 +226,7 @@ export default function LoginPage() {
                     <div className="mt-4 text-center">
                         <button
                             onClick={() => setIsSignUp(true)}
-                            className="text-sm text-traditional-subtext hover:text-traditional-primary underline"
+                            className="text-sm text-slate-400 hover:text-blue-400 underline"
                         >
                             계정이 없으신가요? 회원가입
                         </button>
@@ -237,7 +237,7 @@ export default function LoginPage() {
                     <div className="mt-4 text-center">
                         <button
                             onClick={() => setIsSignUp(false)}
-                            className="text-sm text-traditional-subtext hover:text-traditional-primary underline"
+                            className="text-sm text-slate-400 hover:text-blue-400 underline"
                         >
                             이미 계정이 있으신가요? 로그인
                         </button>
@@ -247,10 +247,10 @@ export default function LoginPage() {
                 <div className="mt-6">
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-traditional-muted"></div>
+                            <div className="w-full border-t border-slate-600"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-white text-traditional-subtext">또는 소셜 로그인</span>
+                            <span className="px-2 bg-slate-800 text-slate-400">또는 소셜 로그인</span>
                         </div>
                     </div>
 
@@ -285,8 +285,8 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-traditional-muted/50 text-center">
-                    <Link href="/" className="text-traditional-subtext hover:text-traditional-text text-sm flex items-center justify-center gap-2 transition-colors">
+                <div className="mt-8 pt-6 border-t border-slate-700 text-center">
+                    <Link href="/" className="text-slate-400 hover:text-white text-sm flex items-center justify-center gap-2 transition-colors">
                         <ArrowLeft size={16} />
                         메인으로 돌아가기
                     </Link>
